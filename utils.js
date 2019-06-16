@@ -17,7 +17,7 @@ const makeRequestForData = async url => {
 
 const getPageTitle = rawHtml => {
   const $ = cheerio.load(rawHtml);
-  const tempTitle = $(".heroSection__body .headerRowTitle h2").text();
+  const tempTitle = $(".headerRowTitle h2").text();
   const title = tempTitle && tempTitle.trim();
   return title;
 };

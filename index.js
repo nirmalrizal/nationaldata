@@ -56,6 +56,46 @@ async function fetchAndSaveProvinceDistrictData(provinceIndex, provinceName) {
 
         scrapeAndSavePageData(districtDataResponse, folderPath);
       }
+      await fetchAndSaveProvinceLocalLevelData(
+        provinceIndex,
+        provinceName,
+        loopIndex,
+        title
+      );
+    } else {
+      isPagePresent = false;
+    }
+    loopIndex += 1;
+  }
+}
+
+async function fetchAndSaveProvinceLocalLevelData(
+  provinceIndex,
+  provinceName,
+  districtIndex,
+  districtName
+) {
+  createNewFolder(`data/${provinceName}/District/${districtName}/LocalLevel`);
+  let loopIndex = 1;
+  let isPagePresent = true;
+  while (isPagePresent) {
+    const pageHtmlUrl = `http://nationaldata.gov.np/LocalLevel/Index/${provinceIndex}${get2DNumber(
+      districtIndex
+    )}${get2DNumber(loopIndex)}`;
+    const localLevelPageHtml = await makeRequestForData(pageHtmlUrl);
+    if (localLevelPageHtml) {
+      const title = getPageTitle(localLevelPageHtml);
+      const dataCallId = getDataCallId(localLevelPageHtml);
+
+      console.log(`    Fetching data for local level : ${title}`);
+      const pageDataUrl = `http://nationaldata.gov.np/LocalLevel/GetData?id=${dataCallId}&tgid=0&tsgid=0&tid=0&year=2011`;
+      const localLevelDataResponse = await makeRequestForData(pageDataUrl);
+      if (localLevelDataResponse) {
+        const folderPath = `data/${provinceName}/District/${districtName}/LocalLevel/${title}`;
+        createNewFolder(folderPath);
+
+        scrapeAndSavePageData(localLevelDataResponse, folderPath);
+      }
     } else {
       isPagePresent = false;
     }
