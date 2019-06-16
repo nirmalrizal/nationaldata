@@ -114,10 +114,15 @@ function writeTextInFile(text, filePath) {
   fs.writeFileSync(filePath, text, { flag: "a" });
 }
 
+function get2DNumber(num) {
+  return (num.toString().length < 2 ? "0" + num : num).toString();
+}
+
 module.exports = {
   makeRequestForData,
   getPageTitle,
   getDataCallId,
   createNewFolder,
-  scrapeAndSavePageData
+  scrapeAndSavePageData,
+  get2DNumber
 };
