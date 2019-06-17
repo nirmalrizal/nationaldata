@@ -4,7 +4,8 @@ const {
   getDataCallId,
   createNewFolder,
   scrapeAndSavePageData,
-  get2DNumber
+  get2DNumber,
+  getLocalLevelWardIdList
 } = require("./utils");
 
 fetchAndSaveProvinceData();
@@ -86,6 +87,7 @@ async function fetchAndSaveProvinceLocalLevelData(
     if (localLevelPageHtml) {
       const title = getPageTitle(localLevelPageHtml);
       const dataCallId = getDataCallId(localLevelPageHtml);
+      const wardsIdList = getLocalLevelWardIdList(localLevelPageHtml);
 
       console.log(`    Fetching data for local level : ${title}`);
       const pageDataUrl = `http://nationaldata.gov.np/LocalLevel/GetData?id=${dataCallId}&tgid=0&tsgid=0&tid=0&year=2011`;
@@ -96,9 +98,48 @@ async function fetchAndSaveProvinceLocalLevelData(
 
         scrapeAndSavePageData(localLevelDataResponse, folderPath);
       }
+      await fetchAndSaveLocalLevelWardData(
+        provinceIndex,
+        provinceName,
+        districtName,
+        title,
+        wardsIdList
+      );
     } else {
       isPagePresent = false;
     }
     loopIndex += 1;
+  }
+}
+
+async function fetchAndSaveLocalLevelWardData(
+  provinceIndex,
+  provinceName,
+  districtName,
+  localLevelName,
+  wardsList
+) {
+  createNewFolder(
+    `data/${provinceName}/District/${districtName}/LocalLevel/${localLevelName}/Ward`
+  );
+  for (let i = 0; i < wardsList.length; i += 1) {
+    const pageHtmlUrl = `http://nationaldata.gov.np/Ward/Index/${provinceIndex}${
+      wardsList[i]
+    }`;
+    const wardPageHtml = await makeRequestForData(pageHtmlUrl);
+    if (wardPageHtml) {
+      console.log(`      Fetching data for ward number : ${i + 1}`);
+      const pageDataUrl = `http://nationaldata.gov.np/Ward/GetData?id=${
+        wardsList[i]
+      }&tgid=0&tsgid=0&tid=0&year=2011`;
+      const wardDataResponse = await makeRequestForData(pageDataUrl);
+      if (wardDataResponse) {
+        const folderPath = `data/${provinceName}/District/${districtName}/LocalLevel/${localLevelName}/Ward/${i +
+          1}`;
+        createNewFolder(folderPath);
+
+        scrapeAndSavePageData(wardDataResponse, folderPath);
+      }
+    }
   }
 }

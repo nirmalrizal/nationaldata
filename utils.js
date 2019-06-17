@@ -36,6 +36,17 @@ const getDataCallId = rawHtml => {
   return dataCallId;
 };
 
+const getLocalLevelWardIdList = rawHtml => {
+  const $ = cheerio.load(rawHtml);
+  const wardAnchors = $(".container .nav .dropdown a");
+  const idsList = [];
+  wardAnchors.each((anchorIndex, anchor) => {
+    const anchorHref = $(anchor).attr("href");
+    idsList.push(anchorHref.replace("/Ward/Index/", ""));
+  });
+  return idsList;
+};
+
 function createNewFolder(folderPath) {
   const dirPath = path.resolve(__dirname, folderPath);
   if (!fs.existsSync(dirPath)) {
@@ -124,5 +135,6 @@ module.exports = {
   getDataCallId,
   createNewFolder,
   scrapeAndSavePageData,
-  get2DNumber
+  get2DNumber,
+  getLocalLevelWardIdList
 };
