@@ -99,7 +99,6 @@ async function fetchAndSaveProvinceLocalLevelData(
         scrapeAndSavePageData(localLevelDataResponse, folderPath);
       }
       await fetchAndSaveLocalLevelWardData(
-        provinceIndex,
         provinceName,
         districtName,
         title,
@@ -113,7 +112,6 @@ async function fetchAndSaveProvinceLocalLevelData(
 }
 
 async function fetchAndSaveLocalLevelWardData(
-  provinceIndex,
   provinceName,
   districtName,
   localLevelName,
@@ -123,23 +121,17 @@ async function fetchAndSaveLocalLevelWardData(
     `data/${provinceName}/District/${districtName}/LocalLevel/${localLevelName}/Ward`
   );
   for (let i = 0; i < wardsList.length; i += 1) {
-    const pageHtmlUrl = `http://nationaldata.gov.np/Ward/Index/${provinceIndex}${
+    console.log(`      Fetching data for ward number : ${i + 1}`);
+    const pageDataUrl = `http://nationaldata.gov.np/Ward/GetData?id=${
       wardsList[i]
-    }`;
-    const wardPageHtml = await makeRequestForData(pageHtmlUrl);
-    if (wardPageHtml) {
-      console.log(`      Fetching data for ward number : ${i + 1}`);
-      const pageDataUrl = `http://nationaldata.gov.np/Ward/GetData?id=${
-        wardsList[i]
-      }&tgid=0&tsgid=0&tid=0&year=2011`;
-      const wardDataResponse = await makeRequestForData(pageDataUrl);
-      if (wardDataResponse) {
-        const folderPath = `data/${provinceName}/District/${districtName}/LocalLevel/${localLevelName}/Ward/${i +
-          1}`;
-        createNewFolder(folderPath);
+    }&tgid=0&tsgid=0&tid=0&year=2011`;
+    const wardDataResponse = await makeRequestForData(pageDataUrl);
+    if (wardDataResponse) {
+      const folderPath = `data/${provinceName}/District/${districtName}/LocalLevel/${localLevelName}/Ward/${i +
+        1}`;
+      createNewFolder(folderPath);
 
-        scrapeAndSavePageData(wardDataResponse, folderPath);
-      }
+      scrapeAndSavePageData(wardDataResponse, folderPath);
     }
   }
 }
