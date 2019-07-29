@@ -71,53 +71,50 @@ const removeEmptyText = text => {
   }
 };
 
-const scrapeAndSavePageData = (rawHtml, parentPath) => {
+const scrapeAndSavePageData = (rawHtml, parentPath, year) => {
   const $ = cheerio.load(rawHtml);
   const pagePanels = $(".panel.panel-default");
   pagePanels.each((index, panel) => {
-    // if (index === 5) {
     const panelSel = $(panel);
-    const panelTitleTempValue = panelSel
-      .find(".panel-heading h5")
-      .text()
-      .split("\n")
-      .map(trimMyText)
-      .filter(text => Boolean(text));
-
-    const panelTitle = panelTitleTempValue[0];
-    const panelDataType = panelTitleTempValue[1];
-    const formattedFileName = getFormattedFileNameForData(panelTitle);
 
     const tableSel = panelSel.find("table.table");
-    const filePath = path.resolve(
-      __dirname,
-      `${parentPath}/csvs/${formattedFileName}.csv`
-    );
-    createNewFolder(`${parentPath}/csvs`);
-    fs.writeFileSync(filePath, `"${panelTitle}","${panelDataType}"\n`);
+    let filePath = "";
     const tableTrs = tableSel.find("tr");
     tableTrs.each((trIndex, tr) => {
-      const tds = $(tr).find("td");
-      if (tds.text().trim()) {
-        const tdValues = [];
-        tds.each((tdIndex, td) => {
-          const singleTdValue = $(td).text();
-          tdValues.push(singleTdValue.trim());
-        });
-        let fileContent = `"${tdValues[0]}","${tdValues[1]}"\n`;
-        if (trIndex === tableTrs.length - 1) {
-          fileContent = `"${tdValues[0]}","${tdValues[1]}"`;
+      if(trIndex === 0){
+        const tableThs = $(tr).find('th');
+        const panelTitle = $(tableThs[0]).text();
+        const panelDataType =  $(tableThs[1]).text();
+        const formattedFileName = getFormattedFileNameForData(panelTitle);
+        filePath = path.resolve(
+          __dirname,
+          `${parentPath}/csvs/${year}/${formattedFileName}.csv`
+        );
+        createNewFolder(`${parentPath}/csvs`);
+        createNewFolder(`${parentPath}/csvs/${year}`);
+        fs.writeFileSync(filePath, `"${panelTitle}","${panelDataType}"\n`);
+      } else {
+        const tds = $(tr).find("td");
+        if (tds.text().trim()) {
+          const tdValues = [];
+          tds.each((tdIndex, td) => {
+            const singleTdValue = $(td).text();
+            tdValues.push(singleTdValue.trim());
+          });
+          let fileContent = `"${tdValues[0]}","${tdValues[1]}"\n`;
+          if (trIndex === tableTrs.length - 1) {
+            fileContent = `"${tdValues[0]}","${tdValues[1]}"`;
+          }
+          writeTextInFile(fileContent, filePath);
         }
-        writeTextInFile(fileContent, filePath);
-      }
-
-      const th = $(tr).find("th");
-      const thText = th.text().trim();
-      if (thText) {
-        writeTextInFile(`"${thText}",""\n`, filePath);
+        
+        const th = $(tr).find("th");
+        const thText = th.text().trim();
+        if (thText) {
+          writeTextInFile(`"${thText}",""\n`, filePath);
+        }
       }
     });
-    // }
   });
 };
 
