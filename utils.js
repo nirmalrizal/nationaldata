@@ -81,10 +81,10 @@ const scrapeAndSavePageData = (rawHtml, parentPath, year) => {
     let filePath = "";
     const tableTrs = tableSel.find("tr");
     tableTrs.each((trIndex, tr) => {
-      if(trIndex === 0){
-        const tableThs = $(tr).find('th');
+      if (trIndex === 0) {
+        const tableThs = $(tr).find("th");
         const panelTitle = $(tableThs[0]).text();
-        const panelDataType =  $(tableThs[1]).text();
+        const panelDataType = $(tableThs[1]).text();
         const formattedFileName = getFormattedFileNameForData(panelTitle);
         filePath = path.resolve(
           __dirname,
@@ -107,7 +107,7 @@ const scrapeAndSavePageData = (rawHtml, parentPath, year) => {
           }
           writeTextInFile(fileContent, filePath);
         }
-        
+
         const th = $(tr).find("th");
         const thText = th.text().trim();
         if (thText) {
