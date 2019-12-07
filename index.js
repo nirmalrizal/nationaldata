@@ -9,7 +9,7 @@ const {
 } = require("./utils");
 
 // const dataYears = ["2011", "2016", "2017", "2018", "2019"];
-const dataYears = ["2016"];
+const dataYears = ["2017"];
 
 fetchAllYearsData();
 
